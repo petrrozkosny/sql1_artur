@@ -29,3 +29,40 @@ GROUP BY lokalita
 SELECT tbl1.*, tbl2.prumerne_srazky_2019
 FROM tbl1
 LEFT JOIN tbl2 ON tbl1.lokalita = tbl2.lokalita
+
+
+
+WITH tbl1 AS(
+-- roky, ve kterych je pocet nullovych hodnot 
+SELECT YEAR(datum) rok
+FROM data_stara
+WHERE lokalita = 'WIEN' AND srazky  IS NULL
+GROUP BY YEAR(datum))
+
+SELECT YEAR(datum), AVG(srazky)
+FROM data_stara
+WHERE YEAR(datum) NOT IN (SELECT * FROM tbl1)
+GROUP BY YEAR(datum)
+ORDER BY YEAR(datum)
+
+_____________________________________________________________________
+
+-- prumerne srazky v jednotlivych zemich ze vsech dat
+SELECT do.zeme,AVG(dv.srazky) prumerne_srazky
+FROM
+(
+SELECT lokalita, srazky
+FROM data_nova
+UNION ALL
+SELECT lokalita, srazky
+FROM data_stara) AS dv
+LEFT JOIN dim_oblasti do ON dv.lokalita = do.stanice
+GROUP BY do.zeme
+
+
+
+
+
+
+
+
