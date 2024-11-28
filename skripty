@@ -59,6 +59,28 @@ FROM data_stara) AS dv
 LEFT JOIN dim_oblasti do ON dv.lokalita = do.stanice
 GROUP BY do.zeme
 
+______________________________________________________________________
+
+WITH tbl_data AS (
+SELECT YEAR(datum) rok, SUM(srazky) rocni_srazky
+FROM 
+(
+	SELECT lokalita, srazky,datum
+	FROM data_nova
+	UNION ALL
+	SELECT lokalita, srazky,datum
+	FROM data_stara) AS dv
+WHERE lokalita = 'RUZYNE'
+GROUP BY YEAR(datum)
+),
+	tbl_data_predchozi AS (
+SELECT tb1.*, tb2.rocni_srazky rocni_srazky_predchozi
+FROM tbl_data tb1
+LEFT JOIN tbl_data tb2 ON tb1.rok = tb2.rok + 1)
+
+SELECT TOP 1 rok, rocni_srazky - rocni_srazky_predchozi AS mezirocni_rozdil
+FROM tbl_data_predchozi
+ORDER BY mezirocni_rozdil DESC;
 
 
 
