@@ -11,3 +11,21 @@ GROUP BY YEAR(datum))
 SELECT tbl1.*,tbl2.prumerne_srazky prumerne_srazky_ruzyne
 FROM tbl1
 LEFT JOIN tbl2 ON tbl1.rok = tbl2.rok
+
+_______________________
+
+
+WITH tbl1 AS(
+SELECT lokalita, AVG(srazky) prumerne_srazky
+FROM data_nova
+GROUP BY lokalita
+),
+tbl2 AS(
+SELECT lokalita, AVG(srazky) prumerne_srazky_2019
+FROM data_nova
+WHERE YEAR(datum) = 2019
+GROUP BY lokalita
+)
+SELECT tbl1.*, tbl2.prumerne_srazky_2019
+FROM tbl1
+LEFT JOIN tbl2 ON tbl1.lokalita = tbl2.lokalita
