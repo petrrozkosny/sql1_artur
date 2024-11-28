@@ -1,16 +1,13 @@
-WITH rocni_data_cesko AS (
-SELECT YEAR(datum) rok, SUM(srazky) suma_srazek
-FROM
-(
-SELECT *
+WITH tbl1 AS(
+SELECT  YEAR(datum) rok, AVG(srazky) prumerne_srazky
 FROM data_nova
-UNION ALL
-SELECT *
-FROM data_stara) dv
-LEFT JOIN dim_oblasti do ON dv.lokalita = do.stanice 
-WHERE do.zeme = 'Cesko'
-GROUP BY YEAR(datum)
-)
-SELECT *
-FROM rocni_data_cesko
-WHERE suma_srazek > 5000;
+GROUP BY YEAR(datum)),
+
+tbl2 AS(
+SELECT  YEAR(datum) rok, AVG(srazky) prumerne_srazky
+FROM data_nova
+WHERE lokalita = 'RUZYNE'
+GROUP BY YEAR(datum))
+SELECT tbl1.*,tbl2.prumerne_srazky prumerne_srazky_ruzyne
+FROM tbl1
+LEFT JOIN tbl2 ON tbl1.rok = tbl2.rok
